@@ -1,13 +1,5 @@
 # Proses Pewarnaan HSV Aliran Air
 
-Jawaban Anda **sudah mengarah ke konsep yang benar**, namun perlu sedikit perbaikan dalam penggunaan istilah dan urutan logika. Berikut adalah versi **narasi yang lebih rapi, akurat, dan mudah dipahami** untuk menjawab pertanyaan:
-
----
-
-### ❓ **Pertanyaan**: *“Dari mana diperoleh nilai HSV pada tabel hasil program?”*
-
-### ✅ **Jawaban yang Lebih Tepat dan Sistematis**:
-
 Nilai **HSV (Hue, Saturation, Value)** dalam tabel hasil program **tidak langsung berasal dari dataset asli**, melainkan merupakan **hasil pemetaan dari dua jenis data: elevasi dan kecepatan aliran air**.
 
 #### 📌 Rinciannya:
