@@ -1,83 +1,97 @@
 # Proses Pewarnaan HSV Aliran Air
 
-Nilai **HSV (Hue, Saturation, Value)** dalam tabel hasil program **tidak langsung berasal dari dataset asli**, melainkan merupakan **hasil pemetaan dari dua jenis data: elevasi dan kecepatan aliran air**.
+```markdown
+# 🌊 Visualisasi Aliran Sungai Berbasis HSV dan Bernoulli
 
-#### 📌 Rinciannya:
+## 📘 Bagaimana Mengonversi Data Kecepatan ke HSV?
 
-1. **Hue (H)** didapat dari **elevasi (ketinggian)**.
+Aplikasi ini memvisualisasikan aliran air dengan menggunakan model pewarnaan **HSV (Hue, Saturation, Value)** berdasarkan:
 
-   * Elevasi dibagi ke dalam sejumlah kelas (misalnya 20 kelas warna).
-   * Setiap kelas memiliki warna berbeda (dari **merah** untuk elevasi tinggi ke **biru/ungu** untuk elevasi rendah).
-   * Contoh: jika sebuah titik memiliki elevasi 20 dan range elevasi dibagi rata dari 0–100, maka nilai 20 masuk kelas ke-4, yang mewakili warna hijau → hue ≈ 0.8.
+- Elevasi (DEM – Digital Elevation Model)
+- Kecepatan aliran antar grid (menggunakan rumus Bernoulli)
 
-2. **Saturation (S)** dan **Value (V)** berasal dari **kecepatan aliran air** yang dihitung menggunakan **rumus Bernoulli**:
+### ⚙️ Proses Konversi Ke HSV
 
-   $$
+1. **Hitung Kecepatan Aliran (v)**  
+   Menggunakan rumus Bernoulli:
+   \[
    v = \sqrt{2g(H_1 - H_2)}
-   $$
+   \]
+   di mana:
+   - \(H_1\) adalah elevasi asal (lebih tinggi)
+   - \(H_2\) adalah elevasi tetangga yang lebih rendah
 
-   * Setelah kecepatan dihitung, nilainya dinormalisasi ke skala 0–1:
+2. **Normalisasi Kecepatan ke Rentang 0–1**  
+   \[
+   v_{\text{norm}} = \frac{v - v_{\text{min}}}{v_{\text{max}} - v_{\text{min}}}
+   \]
 
-     $$
-     v_{\text{norm}} = \frac{v - v_{\text{min}}}{v_{\text{max}} - v_{\text{min}}}
-     $$
-   * Kemudian nilai ini dikonversi menjadi nilai S dan V:
-
-     $$
-     S = 0.1 + 0.9 \times v_{\text{norm}} \\
+3. **Konversi ke Nilai Saturation dan Value**
+   - Saturation (S):
+     \[
+     S = 0.1 + 0.9 \times v_{\text{norm}}
+     \]
+   - Value (V):
+     \[
      V = 0.1 + 0.9 \times v_{\text{norm}}
-     $$
-   * Artinya: kecepatan yang **lebih besar** → warna yang **lebih tajam dan terang**, kecepatan rendah → warna **lebih pudar**.
+     \]
+   - Nilai kecepatan tinggi → warna cerah & tajam  
+     Nilai kecepatan rendah → warna redup & pucat
+
+4. **Hue (H) Berdasarkan Ketinggian**
+   - Elevasi diklasifikasikan ke dalam 20 kelas warna
+   - Hue diberikan dari merah (tinggi) → biru/ungu (rendah)
 
 ---
 
-### 🧪 **Contoh Implementasi**
+## 🧪 Contoh Implementasi
 
-Misalnya ada data elevasi berikut (5x5):
+Misalnya grid elevasi (5x5):
 
 ```
+
 88  55  12  30  20
 60  45  25  15  10
-70  50  20  12  5
-80  65  55  35  3
-90  75  60  40  1
+70  50  20  12   5
+80  65  55  35   3
+90  75  60  40   1
+
 ```
 
-* Titik A = (0,0), elevasi = 88
+- Titik A = (0,0), elevasi = 88  
+- Titik B = (0,1), elevasi = 55  
+  \[
+  v = \sqrt{2 \times 9.8 \times (88 - 55)} \approx 25.42 \text{ m/s}
+  \]
 
-* Titik B = (0,1), elevasi = 55 → maka dihitung kecepatan aliran dari A → B:
+- Misal \(v_{\text{min}} = 5\) dan \(v_{\text{max}} = 30\), maka:
+  \[
+  v_{\text{norm}} = \frac{25.42 - 5}{30 - 5} = 0.8168
+  \]
 
-  $$
-  v = \sqrt{2 \times 9.8 \times (88 - 55)} ≈ \sqrt{646} ≈ 25.42 \text{ m/s}
-  $$
+- Maka:
+  - \(S = 0.1 + 0.9 \times 0.8168 \approx 0.8351\)
+  - \(V = 0.1 + 0.9 \times 0.8168 \approx 0.8351\)
 
-* Setelah semua kecepatan dihitung, akan dicari nilai kecepatan **terendah dan tertinggi** untuk normalisasi.
-
-* Misal nilai normalisasi $v_{\text{norm}} = 0.7$, maka:
-
-  $$
-  S = 0.1 + 0.9 \times 0.7 = 0.73 \\
-  V = 0.1 + 0.9 \times 0.7 = 0.73
-  $$
-
-* Titik A (elevasi 88) misalnya berada pada **kelas warna ke-2** → Hue = 0.9 (merah-kejinggaan)
-
-Jadi untuk titik A:
-
-* **Hue = 0.9**
-* **Saturation = 0.73**
-* **Value = 0.73**
-  → Hasil akhir HSV-nya = (0.9, 0.73, 0.73) → kemudian dikonversi ke warna RGB dan HEX untuk ditampilkan di tabel.
+- Hue (H) ditentukan dari kelas elevasi, misalnya hue = 0.9 (kemerahan)
 
 ---
 
-### 🎯 **Kesimpulan**
+## 🎯 Hasil Akhir
 
-Nilai HSV dihasilkan dari **pemrosesan dua jenis data**:
+Visualisasi akhir akan menunjukkan:
+- **Aliran utama** → warna cerah, kontras, jelas
+- **Area tanpa aliran** → gelap & pucat
+- Setiap piksel mewakili nilai HSV yang dikonversi ke RGB & HEX dan ditampilkan pada peta interaktif serta tabel hasil
 
-* **H dari elevasi** (diklasifikasi)
-* **S dan V dari kecepatan aliran** (hasil rumus Bernoulli → dinormalisasi)
+---
 
-Pemetaan ini membuat jalur aliran terlihat lebih jelas, informatif, dan kontras secara visual dibanding peta elevasi biasa.
+📌 Penjelasan lengkap dan script tersedia pada folder:
+- `modules/algoritma_d8.py`
+- `modules/pewarnaan.py`
+- `app.py`
 
-Jika Anda ingin, saya bisa bantu buat ilustrasi grid warna kecil dengan nilai elevasi dan HSV-nya juga.
+---
+© 2025 — Universitas Hasanuddin & Universitas Sulawesi Barat  
+```
+
